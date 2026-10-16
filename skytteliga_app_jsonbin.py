@@ -490,7 +490,7 @@ if lagg_till_match:
 
 st.divider()
 
-    st.subheader("➕ Registrera mål")
+st.subheader("➕ Registrera mål")
 
     with st.form("registrering_form"):
         spelare = st.selectbox(

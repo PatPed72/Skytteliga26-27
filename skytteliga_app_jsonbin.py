@@ -148,7 +148,8 @@ def ladda_data():
 
     if not isinstance(data, list):
         raise RuntimeError(
-            "Data i JSONBin har fel format. Förväntade en lista med registreringar."
+            "Data i JSONBin har fel format. " 
+            "Förväntade en lista med registreringar."
         )
     return data
 

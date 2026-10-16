@@ -488,11 +488,13 @@ if lagg_till_match:
             st.success(f"Matchen {matchnamn} har sparats!")
             st.rerun()
 
-st.divider()
 
-st.subheader("➕ Registrera mål")
+    st.divider()
+
+    st.subheader("➕ Registrera mål")
 
     with st.form("registrering_form"):
+
         spelare = st.selectbox(
             "Spelare",
             SPELARE,

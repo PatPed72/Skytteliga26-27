@@ -458,6 +458,38 @@ def registreringsflik():
 
     st.divider()
 
+st.subheader("➕ Lägg till match")
+
+with st.form("lagg_till_match_form"):
+    ny_match = st.text_input(
+        "Matchnamn",
+        placeholder="Exempel: IFK Tumba HK - Ny motståndare",
+    )
+    lagg_till_match = st.form_submit_button("Spara match")
+
+if lagg_till_match:
+    matchnamn = ny_match.strip()
+    alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
+
+    if not matchnamn:
+        st.error("Skriv ett matchnamn först.")
+    elif matchnamn in alla_matcher:
+        st.warning("Den matchen finns redan.")
+    else:
+        egna = st.session_state.setdefault("egna_matcher", [])
+        egna.append(matchnamn)
+
+        try:
+            spara_data(registreringar)
+        except Exception as exc:
+            egna.pop()
+            st.error(f"Kunde inte spara matchen: {exc}")
+        else:
+            st.success(f"Matchen {matchnamn} har sparats!")
+            st.rerun()
+
+st.divider()
+
     st.subheader("➕ Registrera mål")
 
     with st.form("registrering_form"):
@@ -472,9 +504,14 @@ def registreringsflik():
             index=0,
         )
 
-        match = st.selectbox(
-            "Match",
-            MATCHER,
+        
+alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
+
+match = st.selectbox(
+    "Match",
+    alla_matcher,
+)
+
         )
 
         matchtyp = st.selectbox(

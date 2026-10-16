@@ -147,15 +147,15 @@ def ladda_data():
         ) from exc
 
     if isinstance(data, dict) and "data" in data:
-    data = data["data"]
+        data = data["data"]
 
-if not isinstance(data, list):
-    raise RuntimeError(
-        "Data i JSONBin har fel format. "
-        "Förväntade en lista med registreringar."
-    )
+    if not isinstance(data, list):
+        raise RuntimeError(
+            "Data i JSONBin har fel format. "
+            "Förväntade en lista med registreringar."
+        )
 
-return data
+    return data
 
 if not isinstance(data, list):
     raise RuntimeError(

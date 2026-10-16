@@ -127,8 +127,9 @@ MATCHTYPER = [
 # ------------------------------------------------------------
 
 
+
 def ladda_data():
-    """Läser registreringarna från JSONBin.io."""
+    """Läser registreringar och egna matcher från JSONBin."""
     response = requests.get(
         f"{jsonbin_data_url()}/latest",
         headers=jsonbin_headers(),
@@ -137,45 +138,51 @@ def ladda_data():
 
     if not response.ok:
         raise RuntimeError(
-            f"Kunde inte läsa registreringarna från JSONBin "
-            f"(HTTP {response.status_code}): {response.text[:300]}"
+            f"Kunde inte läsa JSONBin (HTTP {response.status_code})."
         )
 
     try:
-        data = response.json()["record"]
+        record = response.json()["record"]
     except (KeyError, ValueError, TypeError) as exc:
-        raise RuntimeError(
-            "JSONBin-svaret kunde inte läsas. Kontrollera JSONBin."
-        ) from exc
+        raise RuntimeError("JSONBin-svaret kunde inte läsas.") from exc
 
-    # Klarar både {"data": [...]} och en lista direkt.
-    if isinstance(data, dict) and "data" in data:
-        data = data["data"]
+    if isinstance(record, dict):
+        st.session_state["egna_matcher"] = record.get("matches", [])
+        data = record.get("data", [])
+    else:
+        st.session_state["egna_matcher"] = []
+        data = record
 
     if not isinstance(data, list):
-        raise RuntimeError(
-            "Data i JSONBin har fel format. Förväntade en lista."
-        )
+        raise RuntimeError("Registreringarna har fel format.")
+
+    if not isinstance(st.session_state["egna_matcher"], list):
+        st.session_state["egna_matcher"] = []
 
     return data
 
 
 
 
+
+
 def spara_data(data):
-    """Skriver registreringarna till JSONBin.io."""
+    """Sparar registreringar och egna matcher i JSONBin."""
     response = requests.put(
         jsonbin_data_url(),
         headers=jsonbin_headers(),
-        json={"data": data},
+        json={
+            "data": data,
+            "matches": st.session_state.get("egna_matcher", []),
+        },
         timeout=20,
     )
 
     if not response.ok:
         raise RuntimeError(
-            f"Kunde inte spara registreringarna till JSONBin "
-            f"(HTTP {response.status_code}): {response.text[:300]}"
+            f"Kunde inte spara JSONBin (HTTP {response.status_code})."
         )
+
 
 
 

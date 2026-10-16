@@ -500,20 +500,18 @@ if lagg_till_match:
             SPELARE,
         )
 
+
         mal = st.selectbox(
             "Antal mål",
             list(range(0, 31)),
             index=0,
         )
 
-        
-alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
+        alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
 
-match = st.selectbox(
-    "Match",
-    alla_matcher,
-)
-
+        match = st.selectbox(
+            "Match",
+            alla_matcher,
         )
 
         matchtyp = st.selectbox(
@@ -525,6 +523,7 @@ match = st.selectbox(
             "💾 Spara registrering",
             type="primary",
         )
+
 
     if skickad:
         ny = {

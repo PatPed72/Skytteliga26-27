@@ -157,14 +157,6 @@ def ladda_data():
 
     return data
 
-if not isinstance(data, list):
-    raise RuntimeError(
-        "Data i JSONBin har fel format. "
-        "Förväntade en lista med registreringar."
-    )
-
-return data
-
 
 def spara_data(data):
     """Skriver registreringarna till JSONBin.io."""

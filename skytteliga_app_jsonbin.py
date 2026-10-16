@@ -126,6 +126,7 @@ MATCHTYPER = [
 # 4. DATA
 # ------------------------------------------------------------
 
+
 def ladda_data():
     """Läser registreringarna från JSONBin.io."""
     response = requests.get(
@@ -133,6 +134,7 @@ def ladda_data():
         headers=jsonbin_headers(),
         timeout=20,
     )
+
     if not response.ok:
         raise RuntimeError(
             f"Kunde inte läsa registreringarna från JSONBin "
@@ -143,19 +145,21 @@ def ladda_data():
         data = response.json()["record"]
     except (KeyError, ValueError, TypeError) as exc:
         raise RuntimeError(
-            "JSONBin-svaret kunde inte läsas. Kontrollera att din bin innehåller JSON."
+            "JSONBin-svaret kunde inte läsas. Kontrollera JSONBin."
         ) from exc
 
+    # Klarar både {"data": [...]} och en lista direkt.
     if isinstance(data, dict) and "data" in data:
         data = data["data"]
 
     if not isinstance(data, list):
         raise RuntimeError(
-            "Data i JSONBin har fel format. "
-            "Förväntade en lista med registreringar."
+            "Data i JSONBin har fel format. Förväntade en lista."
         )
 
     return data
+
+
 
 
 def spara_data(data):
@@ -163,14 +167,16 @@ def spara_data(data):
     response = requests.put(
         jsonbin_data_url(),
         headers=jsonbin_headers(),
-        json=data,
+        json={"data": data},
         timeout=20,
     )
+
     if not response.ok:
         raise RuntimeError(
             f"Kunde inte spara registreringarna till JSONBin "
             f"(HTTP {response.status_code}): {response.text[:300]}"
         )
+
 
 
 def hamta_registreringar():

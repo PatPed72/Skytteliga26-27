@@ -146,12 +146,16 @@ def ladda_data():
             "JSONBin-svaret kunde inte läsas. Kontrollera att din bin innehåller JSON."
         ) from exc
 
-    if not isinstance(data, list):
-        raise RuntimeError(
-            "Data i JSONBin har fel format. " 
-            "Förväntade en lista med registreringar."
-        )
-    return data
+    if isinstance(data, dict) and "data" in data:
+    data = data["data"]
+
+if not isinstance(data, list):
+    raise RuntimeError(
+        "Data i JSONBin har fel format. "
+        "Förväntade en lista med registreringar."
+    )
+
+return data
 
 
 def spara_data(data):

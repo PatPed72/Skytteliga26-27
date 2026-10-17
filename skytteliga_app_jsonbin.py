@@ -458,48 +458,47 @@ def registreringsflik():
 
     st.divider()
 
-st.subheader("➕ Lägg till match")
+    # --- Formulär 1: Lägg till match ---
+    st.subheader("➕ Lägg till match")
 
-with st.form("lagg_till_match_form"):
-    ny_match = st.text_input(
-        "Matchnamn",
-        placeholder="Exempel: IFK Tumba HK - Ny motståndare",
-    )
-    lagg_till_match = st.form_submit_button("Spara match")
+    with st.form("lagg_till_match_form"):
+        ny_match = st.text_input(
+            "Matchnamn",
+            placeholder="Exempel: IFK Tumba HK - Ny motståndare",
+        )
+        lagg_till_match = st.form_submit_button("Spara match")
 
-if lagg_till_match:
-    matchnamn = ny_match.strip()
-    alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
+    if lagg_till_match:
+        matchnamn = ny_match.strip()
+        alla_matcher = MATCHER + st.session_state.get("egna_matcher", [])
 
-    if not matchnamn:
-        st.error("Skriv ett matchnamn först.")
-    elif matchnamn in alla_matcher:
-        st.warning("Den matchen finns redan.")
-    else:
-        egna = st.session_state.setdefault("egna_matcher", [])
-        egna.append(matchnamn)
-
-        try:
-            spara_data(registreringar)
-        except Exception as exc:
-            egna.pop()
-            st.error(f"Kunde inte spara matchen: {exc}")
+        if not matchnamn:
+            st.error("Skriv ett matchnamn först.")
+        elif matchnamn in alla_matcher:
+            st.warning("Den matchen finns redan.")
         else:
-            st.success(f"Matchen {matchnamn} har sparats!")
-            st.rerun()
+            egna = st.session_state.setdefault("egna_matcher", [])
+            egna.append(matchnamn)
 
+            try:
+                spara_data(registreringar)
+            except Exception as exc:
+                egna.pop()
+                st.error(f"Kunde inte spara matchen: {exc}")
+            else:
+                st.success(f"Matchen {matchnamn} har sparats!")
+                st.rerun()
 
     st.divider()
 
+    # --- Formulär 2: Registrera mål ---
     st.subheader("➕ Registrera mål")
 
     with st.form("registrering_form"):
-
         spelare = st.selectbox(
             "Spelare",
             SPELARE,
         )
-
 
         mal = st.selectbox(
             "Antal mål",
@@ -524,7 +523,6 @@ if lagg_till_match:
             type="primary",
         )
 
-
     if skickad:
         ny = {
             "spelare": spelare,
@@ -547,13 +545,13 @@ if lagg_till_match:
 
     st.divider()
 
+    # --- Visning & Hantering av registreringar ---
     st.subheader("📋 Registrerade matcher")
 
     if not registreringar:
         st.info("Inga registreringar ännu.")
     else:
         rows = []
-
         for r in reversed(registreringar):
             rows.append(
                 {
@@ -603,8 +601,6 @@ if lagg_till_match:
                     f"togs bort och ändringen sparades i JSONBin."
                 )
                 st.rerun()
-
-
 # ------------------------------------------------------------
 # 9. HUVUDAPP
 # ------------------------------------------------------------

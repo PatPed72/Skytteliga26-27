@@ -54,8 +54,6 @@ def jsonbin_data_url():
     return f"{JSONBIN_API}/{JSONBIN_BIN_ID}"
 
 
-
-
 # ------------------------------------------------------------
 # 2. SPELARE
 # ------------------------------------------------------------
@@ -126,8 +124,6 @@ MATCHTYPER = [
 # 4. DATA
 # ------------------------------------------------------------
 
-
-
 def ladda_data():
     """Läser registreringar och egna matcher från JSONBin."""
     response = requests.get(
@@ -162,10 +158,6 @@ def ladda_data():
     return data
 
 
-
-
-
-
 def spara_data(data):
     """Sparar registreringar och egna matcher i JSONBin."""
     response = requests.put(
@@ -184,11 +176,7 @@ def spara_data(data):
         )
 
 
-
-
 def hamta_registreringar():
-    # session_state gör att appen alltid arbetar med den aktuella
-    # datan under användarens session.
     if "registreringar" not in st.session_state:
         st.session_state.registreringar = ladda_data()
 
@@ -206,27 +194,9 @@ except Exception as exc:
 # 5. HJÄLPFUNKTIONER
 # ------------------------------------------------------------
 
-def motstandare_fran_match(match):
-    delar = [x.strip() for x in match.split(" - ")]
-
-    if len(delar) != 2:
-        return match
-
-    hemma, borta = delar
-
-    if "IFK Tumba HK" in hemma:
-        return borta
-
-    if "IFK Tumba HK" in borta:
-        return hemma
-
-    return match
-
-
 def berakna_skytteliga():
     total = defaultdict(int)
     per_matchtyp = defaultdict(lambda: defaultdict(int))
-    motstandare = defaultdict(lambda: defaultdict(int))
 
     antal_matcher = defaultdict(set)
     antal_matcher_per_matchtyp = defaultdict(lambda: defaultdict(set))
@@ -243,16 +213,12 @@ def berakna_skytteliga():
         total[spelare] += mal
         per_matchtyp[matchtyp][spelare] += mal
 
-        mot = motstandare_fran_match(match)
-        motstandare[spelare][mot] += mal
-
         antal_matcher[spelare].add(match)
         antal_matcher_per_matchtyp[matchtyp][spelare].add(match)
 
     return (
         total,
         per_matchtyp,
-        motstandare,
         antal_matcher,
         antal_matcher_per_matchtyp,
     )
@@ -280,12 +246,10 @@ def visa_skytteliga():
     (
         total,
         _,
-        _,
         antal_matcher,
         _,
     ) = berakna_skytteliga()
 
-    # Endast spelare med minst 1 registrerat mål visas.
     skyttar = [
         (spelare, mal)
         for spelare, mal in total.items()
@@ -312,12 +276,13 @@ def visa_skytteliga():
     visa_tabell(
         rows,
         {
-            "Plats": st.column_config.NumberColumn(width="small"),
-            "Spelare": st.column_config.TextColumn(width="medium"),
-            "Mål": st.column_config.NumberColumn(width="small"),
+            "Plats": st.column_config.NumberColumn(width="small", alignment="left"),
+            "Spelare": st.column_config.TextColumn(width="medium", alignment="left"),
+            "Mål": st.column_config.NumberColumn(width="small", alignment="left"),
             "Snitt mål/match": st.column_config.NumberColumn(
                 format="%.1f",
                 width="medium",
+                alignment="left",
             ),
         },
     )
@@ -327,7 +292,6 @@ def visa_statistik_per_matchtyp():
     (
         _,
         per_matchtyp,
-        _,
         _,
         antal_matcher_per_matchtyp,
     ) = berakna_skytteliga()
@@ -362,54 +326,15 @@ def visa_statistik_per_matchtyp():
         visa_tabell(
             rows,
             {
-                "Spelare": st.column_config.TextColumn(width="medium"),
-                "Mål": st.column_config.NumberColumn(width="small"),
+                "Spelare": st.column_config.TextColumn(width="medium", alignment="left"),
+                "Mål": st.column_config.NumberColumn(width="small", alignment="left"),
                 "Snitt mål/match": st.column_config.NumberColumn(
                     format="%.1f",
                     width="medium",
+                    alignment="left",
                 ),
             },
         )
-
-
-def visa_mal_mot_motstandare():
-    (
-        _,
-        _,
-        motstandare,
-        _,
-        _,
-    ) = berakna_skytteliga()
-
-    for spelare in SPELARE:
-        if spelare not in motstandare:
-            continue
-
-        data = sorted(
-            motstandare[spelare].items(),
-            key=lambda x: (-x[1], x[0]),
-        )
-
-        rows = [
-            {
-                "Motståndare": mot,
-                "Mål": mal,
-            }
-            for mot, mal in data
-        ]
-
-        with st.expander(spelare):
-            visa_tabell(
-                rows,
-                {
-                    "Motståndare": st.column_config.TextColumn(
-                        width="large"
-                    ),
-                    "Mål": st.column_config.NumberColumn(
-                        width="small"
-                    ),
-                },
-            )
 
 
 # ------------------------------------------------------------
@@ -552,6 +477,7 @@ def registreringsflik():
         st.info("Inga registreringar ännu.")
     else:
         rows = []
+
         for r in reversed(registreringar):
             rows.append(
                 {
@@ -565,10 +491,10 @@ def registreringsflik():
         visa_tabell(
             rows,
             {
-                "Spelare": st.column_config.TextColumn(width="medium"),
-                "Mål": st.column_config.NumberColumn(width="small"),
-                "Match": st.column_config.TextColumn(width="large"),
-                "Matchtyp": st.column_config.TextColumn(width="medium"),
+                "Spelare": st.column_config.TextColumn(width="medium", alignment="left"),
+                "Mål": st.column_config.NumberColumn(width="small", alignment="left"),
+                "Match": st.column_config.TextColumn(width="large", alignment="left"),
+                "Matchtyp": st.column_config.TextColumn(width="medium", alignment="left"),
             },
         )
 
@@ -601,6 +527,8 @@ def registreringsflik():
                     f"togs bort och ändringen sparades i JSONBin."
                 )
                 st.rerun()
+
+
 # ------------------------------------------------------------
 # 9. HUVUDAPP
 # ------------------------------------------------------------
@@ -627,7 +555,6 @@ with flik_statistik:
         _,
         _,
         _,
-        _,
     ) = berakna_skytteliga()
 
     totalt_mal = sum(total.values())
@@ -642,9 +569,6 @@ with flik_statistik:
 
     st.subheader("📊 Statistik per matchtyp")
     visa_statistik_per_matchtyp()
-
-    st.subheader("⚔️ Mål mot motståndare")
-    visa_mal_mot_motstandare()
 
 with flik_registrering:
     registreringsflik()
